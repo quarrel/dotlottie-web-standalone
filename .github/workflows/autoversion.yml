@@ -1,0 +1,64 @@
+name: Auto-Version from @lottiefiles/dotlottie-web
+
+on:
+  schedule:
+    # Check every 6 hours
+    - cron: '0 */6 * * *'
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  check-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get latest NPM version
+        id: npm_version
+        run: |
+          LATEST=$(curl -s https://registry.npmjs.org/@lottiefiles/dotlottie-web | jq -r '.["dist-tags"].latest')
+          echo "LATEST_VERSION=$LATEST" >> $GITHUB_ENV
+          echo "Current latest: $LATEST"
+
+      - name: Check if already on latest
+        id: version_check
+        run: |
+          if [ -f package.json ]; then
+            CURRENT=$(node -p "require('./package.json').version")
+            echo "Current local version: $CURRENT"
+            if [ "$CURRENT" = "$LATEST_VERSION" ]; then
+              echo "UP_TO_DATE=true" >> $GITHUB_ENV
+            else
+              echo "UP_TO_DATE=false" >> $GITHUB_ENV
+            fi
+          else
+            echo "UP_TO_DATE=false" >> $GITHUB_ENV
+          fi
+
+      - name: Checkout repo
+        if: env.UP_TO_DATE != 'true'
+        uses: actions/checkout@v4
+
+      - name: Update package.json version
+        if: env.UP_TO_DATE != 'true'
+        run: |
+          npm version $LATEST_VERSION --no-git-tag-version
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add package.json
+          git commit -m "chore: bump to @lottiefiles/dotlottie-web@$LATEST_VERSION"
+
+      - name: Install & Build
+        if: env.UP_TO_DATE != 'true'
+        run: |
+          npm install
+          npm run build
+
+      - name: Commit built file
+        if: env.UP_TO_DATE != 'true'
+        run: |
+          git add build/dotlottie-standalone.js
+          git commit -m "build: $LATEST_VERSION" || echo "No changes to commit"
+
+      - name: Create Tag and Push
+        if: env.UP_TO_DATE != 'true'
+        run: |
+          git tag "v$LATEST_VERSION"
+          git push origin main --tags
