@@ -4,41 +4,74 @@ import fs from 'fs';
 import path from 'path';
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
-const base64Wasm = fs.readFileSync(path.resolve(__dirname, 'assets/dotlottie-player.wasm.base64.txt'), 'utf-8');
+const BASE64_FILE = path.resolve(__dirname, 'assets/dotlottie-player.wasm.base64.txt');
 
-const wrapper = `(() => { // Decode WASM from base64
-  const bin = Uint8Array.from(atob(${JSON.stringify(base64Wasm)}), c => c.charCodeAt(0)).buffer;
+// Read and sanitize base64
+let base64Wasm;
+try {
+  base64Wasm = fs.readFileSync(BASE64_FILE, 'utf-8')
+    .replace(/\s/g, '')  // Remove ALL whitespace (critical!)
+    .trim();
 
-  // Intercept fetch for dotlottie-player.wasm
-  const origFetch = window.fetch;
-  window.fetch = new Proxy(origFetch, {
-    apply(target, thisArg, args) {
-      const [url] = args;
-      if (typeof url === 'string' && url.endsWith('dotlottie-player.wasm')) {
-        return Promise.resolve({
-          ok: true,
-          status: 200,
-          arrayBuffer: () => Promise.resolve(bin),
-          blob: () => Promise.resolve(new Blob([new Uint8Array(bin)], { type: 'application/wasm' })),
-        });
+  // Validate base64 format
+  if (!/^[A-Za-z0-9+/=]+$/.test(base64Wasm)) {
+    throw new Error('Invalid characters in base64');
+  }
+
+  // Check padding
+  const pad = base64Wasm.length % 4;
+  if (pad !== 0) {
+    base64Wasm += '='.repeat(4 - pad); // Fix padding
+  }
+
+  console.log('✅ Base64 loaded and sanitized. Length:', base64Wasm.length);
+} catch (err) {
+  console.error('❌ Failed to load or validate base64:', err.message);
+  process.exit(1);
+}
+
+// Generate safe JS string injection
+const base64Safe = JSON.stringify(base64Wasm);
+
+// Fetch-intercept wrapper
+const wrapper = `(() => {
+  try {
+    const bin = Uint8Array.from(atob(${base64Safe}), c => c.charCodeAt(0)).buffer;
+
+    const origFetch = window.fetch;
+    window.fetch = new Proxy(origFetch, {
+      apply(target, thisArg, args) {
+        const [url] = args;
+        if (typeof url === 'string' && url.endsWith('dotlottie-player.wasm')) {
+          return Promise.resolve({
+            ok: true,
+            status: 200,
+            arrayBuffer: () => Promise.resolve(bin),
+            blob: () => Promise.resolve(new Blob([new Uint8Array(bin)], { type: 'application/wasm' })),
+          });
+        }
+        return Reflect.apply(target, thisArg, args);
       }
-      return Reflect.apply(target, thisArg, args);
-    }
-  });
-})();
-`;
+    });
+    console.log('✅ dotlottie-web: WASM fetch intercepted');
+  } catch (e) {
+    console.error('❌ dotlottie-web: Failed to inject WASM', e);
+    throw e;
+  }
+})();`;
 
+// Build
 await esbuild.build({
   entryPoints: ['src/loader.js'],
   bundle: true,
   format: 'iife',
   outfile: 'build/dotlottie-web-standalone.js',
   external: [],
-  banner: {
-    js: wrapper
-  },
+  banner: { js: wrapper },
   minify: true,
   sourcemap: false,
+  logLevel: 'info',
 });
 
 console.log('✅ Built: build/dotlottie-web-standalone.js');
+
