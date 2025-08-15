@@ -6,7 +6,7 @@ import https from 'https';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const pkg = JSON.parse(fs.readFileSync('package.json', 'utf-8'));
-const WASM_URL = `https://cdn.jsdelivr.net/npm/@lottiefiles/dotlottie-web@${pkg.version}/dotlottie-player.wasm`;
+const WASM_URL = `https://cdn.jsdelivr.net/npm/@lottiefiles/dotlottie-web@${pkg.version}/dist/dotlottie-player.wasm`;
 const ASSETS_DIR = path.resolve(__dirname, '../assets');
 const OUTPUT_FILE = path.join(ASSETS_DIR, 'dotlottie-player.wasm.base64.txt');
 
