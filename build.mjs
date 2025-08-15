@@ -1,32 +1,36 @@
 // build.mjs
-import * as esbuild from 'esbuild';
-import fs from 'fs';
-import path from 'path';
+import * as esbuild from "esbuild";
+import fs from "fs";
+import path from "path";
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
-const BASE64_FILE = path.resolve(__dirname, 'assets/dotlottie-player.wasm.base64.txt');
+const BASE64_FILE = path.resolve(
+  __dirname,
+  "assets/dotlottie-player.wasm.base64.txt"
+);
 
 // Read and sanitize base64
 let base64Wasm;
 try {
-  base64Wasm = fs.readFileSync(BASE64_FILE, 'utf-8')
-    .replace(/\s/g, '')  // Remove ALL whitespace (critical!)
+  base64Wasm = fs
+    .readFileSync(BASE64_FILE, "utf-8")
+    .replace(/\s/g, "") // Remove ALL whitespace (critical!)
     .trim();
 
   // Validate base64 format
   if (!/^[A-Za-z0-9+/=]+$/.test(base64Wasm)) {
-    throw new Error('Invalid characters in base64');
+    throw new Error("Invalid characters in base64");
   }
 
   // Check padding
   const pad = base64Wasm.length % 4;
   if (pad !== 0) {
-    base64Wasm += '='.repeat(4 - pad); // Fix padding
+    base64Wasm += "=".repeat(4 - pad); // Fix padding
   }
 
-  console.log('✅ Base64 loaded and sanitized. Length:', base64Wasm.length);
+  console.log("✅ Base64 loaded and sanitized. Length:", base64Wasm.length);
 } catch (err) {
-  console.error('❌ Failed to load or validate base64:', err.message);
+  console.error("❌ Failed to load or validate base64:", err.message);
   process.exit(1);
 }
 
@@ -40,18 +44,18 @@ const wrapper = `(() => {
 
     const origFetch = window.fetch;
     window.fetch = new Proxy(window.fetch, {
-  apply(target, thisArg, args) {
-    const [url] = args;
-    if (typeof url === 'string' && url.endsWith('dotlottie-player.wasm')) {
-      return Promise.resolve(new Response(bin, {
-        status: 200,
-        headers: { 'Content-Type': 'application/wasm' }
-      }));
-    }
-    return Reflect.apply(target, thisArg, args);
-  }
-});
-    console.log('✅ dotlottie-web: WASM fetch intercepted');
+      apply(target, thisArg, args) {
+        const [url] = args;
+        if (typeof url === 'string' && url.endsWith('dotlottie-player.wasm')) {
+          return Promise.resolve(new Response(bin, {
+            status: 200,
+            headers: { 'Content-Type': 'application/wasm' }
+          }));
+        }
+        return Reflect.apply(target, thisArg, args);
+      }
+    });
+    document.dispatchEvent(new CustomEvent('DotLottieReady'));
   } catch (e) {
     console.error('❌ dotlottie-web: Failed to inject WASM', e);
     throw e;
@@ -60,16 +64,15 @@ const wrapper = `(() => {
 
 // Build
 await esbuild.build({
-  entryPoints: ['src/loader.js'],
+  entryPoints: ["src/loader.js"],
   bundle: true,
-  format: 'iife',
-  outfile: 'build/dotlottie-web-standalone.js',
+  format: "iife",
+  outfile: "build/dotlottie-web-standalone.js",
   external: [],
   banner: { js: wrapper },
   minify: true,
   sourcemap: false,
-  logLevel: 'info',
+  logLevel: "info",
 });
 
-console.log('✅ Built: build/dotlottie-web-standalone.js');
-
+console.log("✅ Built: build/dotlottie-web-standalone.js");

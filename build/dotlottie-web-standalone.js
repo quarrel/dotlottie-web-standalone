@@ -15,7 +15,7 @@
     return Reflect.apply(target, thisArg, args);
   }
 });
-    console.log('✅ dotlottie-web: WASM fetch intercepted');
+    document.dispatchEvent(new CustomEvent('DotLottieReady'));
   } catch (e) {
     console.error('❌ dotlottie-web: Failed to inject WASM', e);
     throw e;
