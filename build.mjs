@@ -34,7 +34,7 @@ await esbuild.build({
   entryPoints: ['node_modules/@lottiefiles/dotlottie-web/dist/index.js'],
   bundle: true,
   format: 'iife',
-  outfile: 'build/dotlottie-standalone.js',
+  outfile: 'build/dotlottie-web-standalone.js',
   external: [],
   banner: {
     js: wrapper
@@ -43,4 +43,4 @@ await esbuild.build({
   sourcemap: false,
 });
 
-console.log('✅ Built: build/dotlottie-standalone.js');
+console.log('✅ Built: build/dotlottie-web-standalone.js');
