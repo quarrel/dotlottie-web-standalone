@@ -6,9 +6,7 @@ import path from 'path';
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 const base64Wasm = fs.readFileSync(path.resolve(__dirname, 'assets/dotlottie-player.wasm.base64.txt'), 'utf-8');
 
-const wrapper = `
-(() => {
-  // Decode WASM from base64
+const wrapper = `(() => { // Decode WASM from base64
   const bin = Uint8Array.from(atob(${JSON.stringify(base64Wasm)}), c => c.charCodeAt(0)).buffer;
 
   // Intercept fetch for dotlottie-player.wasm
@@ -31,7 +29,7 @@ const wrapper = `
 `;
 
 await esbuild.build({
-  entryPoints: ['node_modules/@lottiefiles/dotlottie-web/dist/index.js'],
+  entryPoints: ['src/loader.js'],
   bundle: true,
   format: 'iife',
   outfile: 'build/dotlottie-web-standalone.js',
