@@ -31,7 +31,7 @@ const wrapper = `
 `;
 
 await esbuild.build({
-  entryPoints: ['node_modules/@lottiefiles/dotlottie-web/index.js'],
+  entryPoints: ['node_modules/@lottiefiles/dotlottie-web/dist/index.js'],
   bundle: true,
   format: 'iife',
   outfile: 'build/dotlottie-standalone.js',

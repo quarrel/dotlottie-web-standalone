@@ -23,13 +23,18 @@ jobs:
           if [ -f package.json ]; then
             CURRENT=$(node -p "require('./package.json').version")
             echo "Current local version: $CURRENT"
+            echo "Latest NPM version: $LATEST_VERSION"
             if [ "$CURRENT" = "$LATEST_VERSION" ]; then
               echo "UP_TO_DATE=true" >> $GITHUB_ENV
+              echo "No update needed."
+              exit 0  # ✅ Success — no change needed
             else
               echo "UP_TO_DATE=false" >> $GITHUB_ENV
+              echo "Update required: $CURRENT → $LATEST_VERSION"
             fi
           else
             echo "UP_TO_DATE=false" >> $GITHUB_ENV
+            echo "No package.json found — needs init"
           fi
 
       - name: Checkout repo
@@ -39,7 +44,7 @@ jobs:
       - name: Update package.json version
         if: env.UP_TO_DATE != 'true'
         run: |
-          npm version $LATEST_VERSION --no-git-tag-version
+          npm version ${{ env.LATEST_VERSION }} --no-git-tag-version
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
           git add package.json
