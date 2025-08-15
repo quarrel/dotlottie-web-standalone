@@ -39,20 +39,18 @@ const wrapper = `(() => {
     const bin = Uint8Array.from(atob(${base64Safe}), c => c.charCodeAt(0)).buffer;
 
     const origFetch = window.fetch;
-    window.fetch = new Proxy(origFetch, {
-      apply(target, thisArg, args) {
-        const [url] = args;
-        if (typeof url === 'string' && url.endsWith('dotlottie-player.wasm')) {
-          return Promise.resolve({
-            ok: true,
-            status: 200,
-            arrayBuffer: () => Promise.resolve(bin),
-            blob: () => Promise.resolve(new Blob([new Uint8Array(bin)], { type: 'application/wasm' })),
-          });
-        }
-        return Reflect.apply(target, thisArg, args);
-      }
-    });
+    window.fetch = new Proxy(window.fetch, {
+  apply(target, thisArg, args) {
+    const [url] = args;
+    if (typeof url === 'string' && url.endsWith('dotlottie-player.wasm')) {
+      return Promise.resolve(new Response(bin, {
+        status: 200,
+        headers: { 'Content-Type': 'application/wasm' }
+      }));
+    }
+    return Reflect.apply(target, thisArg, args);
+  }
+});
     console.log('✅ dotlottie-web: WASM fetch intercepted');
   } catch (e) {
     console.error('❌ dotlottie-web: Failed to inject WASM', e);
