@@ -1,6 +1,6 @@
 # dotlottie-web-standalone
 
-A self-contained, CSP-safe JavaScript bundle of [`@lottiefiles/dotlottie-web`](https://github.com/LottieFiles/dotlottie-web) with the WASM file inlined.
+A self-contained JavaScript bundle of [`@lottiefiles/dotlottie-web`](https://github.com/LottieFiles/dotlottie-web) with the WASM file inlined.
 
 Perfect for:
 - 🧩 **Userscripts** (Tampermonkey, Violentmonkey)
