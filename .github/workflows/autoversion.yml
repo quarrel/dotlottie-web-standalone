@@ -59,7 +59,7 @@ jobs:
       - name: Commit built file
         if: env.UP_TO_DATE != 'true'
         run: |
-          git add build/dotlottie-standalone.js
+          git add build/dotlottie-web-standalone.js
           git commit -m "build: $LATEST_VERSION" || echo "No changes to commit"
 
       - name: Create Tag and Push
