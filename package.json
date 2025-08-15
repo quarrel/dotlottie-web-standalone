@@ -14,9 +14,16 @@
     "@lottiefiles/dotlottie-web": "^0.50.0"
   },
   "devDependencies": {
-    "esbuild": "^0.21.5"
+    "esbuild": "0.21.5"
   },
-  "keywords": ["lottie", "dotlottie", "wasm", "userscript", "CSP", "standalone"],
+  "keywords": [
+    "lottie",
+    "dotlottie",
+    "wasm",
+    "userscript",
+    "CSP",
+    "standalone"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
