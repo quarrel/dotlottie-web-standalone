@@ -1,12 +1,12 @@
 // build.mjs
-import * as esbuild from "esbuild";
-import fs from "fs";
-import path from "path";
+import * as esbuild from 'esbuild';
+import fs from 'fs';
+import path from 'path';
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 const BASE64_FILE = path.resolve(
-  __dirname,
-  "assets/dotlottie-player.wasm.base64.txt"
+    __dirname,
+    'assets/dotlottie-player.wasm.base64.txt'
 );
 
 // ================================
@@ -16,21 +16,24 @@ const BASE64_FILE = path.resolve(
 let base64Wasm = null;
 
 try {
-  base64Wasm = fs.readFileSync(BASE64_FILE, "utf-8").replace(/\s/g, "").trim();
+    base64Wasm = fs
+        .readFileSync(BASE64_FILE, 'utf-8')
+        .replace(/\s/g, '')
+        .trim();
 
-  if (!/^[A-Za-z0-9+/=]+$/.test(base64Wasm)) {
-    throw new Error("Invalid characters in base64");
-  }
+    if (!/^[A-Za-z0-9+/=]+$/.test(base64Wasm)) {
+        throw new Error('Invalid characters in base64');
+    }
 
-  const pad = base64Wasm.length % 4;
-  if (pad !== 0) {
-    base64Wasm += "=".repeat(4 - pad);
-  }
+    const pad = base64Wasm.length % 4;
+    if (pad !== 0) {
+        base64Wasm += '='.repeat(4 - pad);
+    }
 
-  console.log("✅ Base64 loaded and sanitized. Length:", base64Wasm.length);
+    console.log('✅ Base64 loaded and sanitized. Length:', base64Wasm.length);
 } catch (err) {
-  console.warn("⚠️  Could not load WASM for standalone build:", err.message);
-  console.log("⏭️  Skipping dotlottie-web-standalone.js");
+    console.warn('⚠️  Could not load WASM for standalone build:', err.message);
+    console.log('⏭️  Skipping dotlottie-web-standalone.js');
 }
 
 // ================================
@@ -38,9 +41,9 @@ try {
 // ================================
 
 if (base64Wasm) {
-  const base64Safe = JSON.stringify(base64Wasm);
+    const base64Safe = JSON.stringify(base64Wasm);
 
-  const wrapper = `(() => {
+    const wrapper = `(() => {
     try {
       const bin = Uint8Array.from(atob(${base64Safe}), c => c.charCodeAt(0)).buffer;
       const origFetch = window.fetch;
@@ -63,19 +66,19 @@ if (base64Wasm) {
     }
   })();`;
 
-  await esbuild.build({
-    entryPoints: ["src/loader.js"],
-    bundle: true,
-    format: "iife",
-    outfile: "build/dotlottie-web-standalone.js",
-    external: [],
-    banner: { js: wrapper },
-    minify: true,
-    sourcemap: false,
-    logLevel: "info",
-  });
+    await esbuild.build({
+        entryPoints: ['src/loader.js'],
+        bundle: true,
+        format: 'iife',
+        outfile: 'build/dotlottie-web-standalone.js',
+        external: [],
+        banner: { js: wrapper },
+        minify: true,
+        sourcemap: false,
+        logLevel: 'info',
+    });
 
-  console.log("✅ Built: build/dotlottie-web-standalone.js");
+    console.log('✅ Built: build/dotlottie-web-standalone.js');
 }
 
 // ================================
@@ -83,19 +86,19 @@ if (base64Wasm) {
 // ================================
 
 await esbuild.build({
-  entryPoints: ["src/loader.js"],
-  bundle: true,
-  format: "iife",
-  outfile: "build/dotlottie-web.js",
-  external: [],
-  minify: true,
-  sourcemap: false,
-  logLevel: "info",
+    entryPoints: ['src/loader.js'],
+    bundle: true,
+    format: 'iife',
+    outfile: 'build/dotlottie-web-iife.js',
+    external: [],
+    minify: true,
+    sourcemap: false,
+    logLevel: 'info',
 });
 
-console.log("✅ Built: build/dotlottie-web.js");
-console.log("✨ Outputs:");
-console.log("   • dotlottie-web-standalone.js — with embedded WASM (CSP-safe)");
+console.log('✅ Built: build/dotlottie-web.js');
+console.log('✨ Outputs:');
+console.log('   • dotlottie-web-standalone.js — with embedded WASM (CSP-safe)');
 console.log(
-  "   • dotlottie-web.js — normal version (uses external WASM fetch)"
+    '   • dotlottie-web-iife.js — normal version (uses external WASM fetch)'
 );
