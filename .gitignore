@@ -3,3 +3,5 @@ npm-debug.log
 *.log
 .env
 .DS_Store
+.prettierrc.json
+jsconfig.json
