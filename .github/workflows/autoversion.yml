@@ -17,6 +17,9 @@ jobs:
           echo "LATEST_VERSION=$LATEST" >> $GITHUB_ENV
           echo "Current latest: $LATEST"
 
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
       - name: Check if already on latest
         id: version_check
         run: |
@@ -27,7 +30,6 @@ jobs:
             if [ "$CURRENT" = "$LATEST_VERSION" ]; then
               echo "UP_TO_DATE=true" >> $GITHUB_ENV
               echo "No update needed."
-              exit 0  # ✅ Success — no change needed
             else
               echo "UP_TO_DATE=false" >> $GITHUB_ENV
               echo "Update required: $CURRENT → $LATEST_VERSION"
@@ -36,10 +38,6 @@ jobs:
             echo "UP_TO_DATE=false" >> $GITHUB_ENV
             echo "No package.json found — needs init"
           fi
-
-      - name: Checkout repo
-        if: env.UP_TO_DATE != 'true'
-        uses: actions/checkout@v4
 
       - name: Update package.json version
         if: env.UP_TO_DATE != 'true'
