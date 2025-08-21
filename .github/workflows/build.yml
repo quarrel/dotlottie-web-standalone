@@ -1,36 +1,38 @@
 name: Build dotlottie-web-standalone.js
 
 on:
-  push:
-    branches: [ main ]
-  release:
-    types: [ published ]
+    push:
+        branches: [main]
+    release:
+        types: [published]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '20'
 
-      - name: Install dependencies
-        run: npm install
+            - name: Install dependencies
+              run: npm install
 
-      - name: Build
-        run: npm run build
+            - name: Build
+              run: npm run build
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          path: build/dotlottie-web-standalone.js
+            - name: Upload Artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  path: |
+                      build/dotlottie-web-standalone.js
+                      build/dotlottie-web-iife.js
 
-      - name: Commit & Push if Changed
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          git add build/
-          git diff --quiet && git diff --staged --quiet || (git commit -m "build: update dotlottie-web-standalone.js" && git push)
+            - name: Commit & Push if Changed
+              run: |
+                  git config user.name "GitHub Actions"
+                  git config user.email "actions@github.com"
+                  git add .
+                  git diff --quiet && git diff --staged --quiet || (git commit -m "build: update dotlottie-web artefacts" && git push)
