@@ -55,9 +55,11 @@ jobs:
             - name: Commit changes
               if: env.UP_TO_DATE != 'true'
               run: |
+                  ls -R
                   git config user.name "GitHub Actions"
                   git config user.email "actions@github.com"
                   git add .
+                  git status
                   git commit -m "chore: bump to @lottiefiles/dotlottie-web@$LATEST_VERSION" -m "build: $LATEST_VERSION" || echo "No changes to commit"
 
             - name: Create Tag and Push
