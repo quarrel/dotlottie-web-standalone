@@ -9,6 +9,8 @@ on:
 jobs:
     check-version:
         runs-on: ubuntu-latest
+        permissions:
+          contents: write
         steps:
             - name: Get latest NPM version
               id: npm_version
@@ -43,10 +45,6 @@ jobs:
               if: env.UP_TO_DATE != 'true'
               run: |
                   npm version ${{ env.LATEST_VERSION }} --no-git-tag-version
-                  git config user.name "GitHub Actions"
-                  git config user.email "actions@github.com"
-                  git add package.json
-                  git commit -m "chore: bump to @lottiefiles/dotlottie-web@$LATEST_VERSION"
 
             - name: Install & Build
               if: env.UP_TO_DATE != 'true'
@@ -54,13 +52,13 @@ jobs:
                   npm install
                   npm run build
 
-            - name: Commit built file
+            - name: Commit changes
               if: env.UP_TO_DATE != 'true'
               run: |
-                  git add build/dotlottie-web-standalone.js
-                  git add build/dotlottie-web-iife.js
-                  git add package-lock.json
-                  git commit -m "build: $LATEST_VERSION" || echo "No changes to commit"
+                  git config user.name "GitHub Actions"
+                  git config user.email "actions@github.com"
+                  git add .
+                  git commit -m "chore: bump to @lottiefiles/dotlottie-web@$LATEST_VERSION" -m "build: $LATEST_VERSION" || echo "No changes to commit"
 
             - name: Create Tag and Push
               if: env.UP_TO_DATE != 'true'
