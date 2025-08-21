@@ -41,9 +41,10 @@ jobs:
                     echo "No package.json found — needs init"
                   fi
 
-            - name: Update package.json version
+            - name: Update package.json
               if: env.UP_TO_DATE != 'true'
               run: |
+                  npm pkg set dependencies.@lottiefiles/dotlottie-web="^${{ env.LATEST_VERSION }}"
                   npm version ${{ env.LATEST_VERSION }} --no-git-tag-version
 
             - name: Install & Build
