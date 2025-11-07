@@ -1,6 +1,6 @@
 {
     "name": "dotlottie-web-standalone",
-    "version": "0.55.0",
+    "version": "0.56.0",
     "description": "A self-contained, CSP-safe bundle of @lottiefiles/dotlottie-web with WASM inlined for userscripts and restricted environments.",
     "main": "build/dotlottie-web-standalone.js",
     "scripts": {
@@ -11,7 +11,7 @@
         "release": "npm run build"
     },
     "dependencies": {
-        "@lottiefiles/dotlottie-web": "^0.55.0"
+        "@lottiefiles/dotlottie-web": "^0.56.0"
     },
     "devDependencies": {
         "esbuild": "0.21.5"
