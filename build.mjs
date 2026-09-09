@@ -96,9 +96,26 @@ await esbuild.build({
     logLevel: 'info',
 });
 
-console.log('✅ Built: build/dotlottie-web.js');
+console.log('✅ Built: build/dotlottie-web-iife.js');
+
+// WebGPU (no embedded WASM)
+await esbuild.build({
+    entryPoints: ['src/loader-webgpu.js'],
+    bundle: true,
+    format: 'iife',
+    outfile: 'build/dotlottie-web-webgpu-iife.js',
+    external: [],
+    minify: true,
+    sourcemap: false,
+    logLevel: 'info',
+});
+
+console.log('✅ Built: build/dotlottie-web-webgpu-iife.js');
 console.log('✨ Outputs:');
 console.log('   • dotlottie-web-standalone.js — with embedded WASM (CSP-safe)');
 console.log(
     '   • dotlottie-web-iife.js — normal version (uses external WASM fetch)'
+);
+console.log(
+    '   • dotlottie-web-webgpu-iife.js — WebGPU version (uses external WASM fetch)'
 );

@@ -2,10 +2,11 @@
 
 A self-contained JavaScript bundle of [`@lottiefiles/dotlottie-web`](https://github.com/LottieFiles/dotlottie-web), designed for environments where external WASM fetching is problematic, such as userscripts or strict Content Security Policy (CSP) sites.
 
-This repository provides two main builds:
+This repository provides three builds:
 
 -   `dotlottie-web-standalone.js`: Includes the WASM file inlined as base64, intercepting `fetch()` calls to serve it locally. Ideal for CSP-restricted environments.
--   `dotlottie-web-iife.js`: A standard IIFE bundle that fetches the WASM file externally, similar to the official library's behavior.
+-   `dotlottie-web-iife.js`: A Canvas 2D IIFE bundle that fetches the WASM file externally, similar to the official library's behaviour.
+-   `dotlottie-web-webgpu-iife.js`: An IIFE bundle of `@lottiefiles/dotlottie-web/webgpu` that fetches the WebGPU WASM file externally.
 
 ## Why use this?
 
@@ -31,11 +32,17 @@ Include the script in your HTML:
 
 ```html
 <!-- For CSP-safe, inlined WASM version -->
-<script src="https://cdn.jsdelivr.net/gh/quarrel/dotlottie-web-standalone@v0.50.0/build/dotlottie-web-standalone.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/quarrel/dotlottie-web-standalone@v0.80.0/build/dotlottie-web-standalone.js"></script>
 
 <!-- For standard IIFE version (WASM fetched externally) -->
-<script src="https://cdn.jsdelivr.net/gh/quarrel/dotlottie-web-standalone@v0.50.0/build/dotlottie-web-iife.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/quarrel/dotlottie-web-standalone@v0.80.0/build/dotlottie-web-iife.js"></script>
+
+<!-- For standard WebGPU IIFE version (WASM fetched externally) -->
+<script src="https://cdn.jsdelivr.net/gh/quarrel/dotlottie-web-standalone@v0.80.0/build/dotlottie-web-webgpu-iife.js"></script>
 ```
+
+
+Both standard IIFEs expose `window.DotLottie`; load only one renderer bundle per page. The WebGPU entry point does not export `DotLottieWorker`. WebGPU requires a browser and device with WebGPU support and a secure context (HTTPS or localhost). Its WASM is fetched externally from the upstream CDN; it is not embedded and does not emit `DotLottieReady`.
 
 ### `DotLottieReady` Event
 
@@ -80,7 +87,7 @@ To build the project locally:
     ```bash
     npm run build
     ```
-    This will generate `dotlottie-web-standalone.js` and `dotlottie-web-iife.js` in the `build/` directory.
+    This will generate `dotlottie-web-standalone.js`, `dotlottie-web-iife.js`, and `dotlottie-web-webgpu-iife.js` in the `build/` directory.
 
 ## License
 

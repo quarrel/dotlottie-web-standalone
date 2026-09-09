@@ -1,4 +1,4 @@
-name: Build dotlottie-web-standalone.js
+name: Build dotLottie bundles
 
 on:
     push:
@@ -31,6 +31,7 @@ jobs:
                   path: |
                       build/dotlottie-web-standalone.js
                       build/dotlottie-web-iife.js
+                      build/dotlottie-web-webgpu-iife.js
 
             - name: Commit & Push if Changed
               run: |
